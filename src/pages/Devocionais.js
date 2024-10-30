@@ -6,22 +6,21 @@ import devocionaisData from './devocionais.json';
 const Devocionais = () => {
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(6); // Mostra o devocional mais recente
+  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(0);
   const [devocionaisComDatas, setDevocionaisComDatas] = useState([]);
 
   useEffect(() => {
     const today = new Date();
     const randomDevocionais = [...devocionaisData].sort(() => Math.random() - 0.5);
     
-    // Seleciona apenas 7 devocionais e atribui datas dos últimos 7 dias
     const devocionaisAtualizados = randomDevocionais.slice(0, 7).map((devocional, index) => {
       const dataDevocional = new Date(today);
-      dataDevocional.setDate(today.getDate() - (6 - index)); // Define a data retroativa dos últimos 7 dias
+      dataDevocional.setDate(today.getDate() - index);
       return {
         ...devocional,
         date: dataDevocional.toLocaleDateString('pt-BR')
       };
-    });
+    }).reverse();
     
     setDevocionaisComDatas(devocionaisAtualizados);
   }, []);
@@ -30,14 +29,14 @@ const Devocionais = () => {
   const closeModal = () => setModalOpen(false);
 
   const handlePrevious = () => {
-    if (devocionalAtualIndex < 6) {
-      setDevocionalAtualIndex(prevIndex => prevIndex + 1);
+    if (devocionalAtualIndex > 0) {
+      setDevocionalAtualIndex(prevIndex => prevIndex - 1);
     }
   };
 
   const handleNext = () => {
-    if (devocionalAtualIndex > 0) {
-      setDevocionalAtualIndex(prevIndex => prevIndex - 1);
+    if (devocionalAtualIndex < devocionaisComDatas.length - 1) {
+      setDevocionalAtualIndex(prevIndex => prevIndex + 1);
     }
   };
 
@@ -57,9 +56,9 @@ const Devocionais = () => {
           <p className="devocional-instruction">Selecione um devocional.<br />Utilize as setas para navegar entre as datas.</p>
           <div className="devocional-content">
             <button
-              className={`nav-arrow left-arrow ${devocionalAtualIndex === 6 ? 'disabled' : ''}`}
+              className={`nav-arrow left-arrow ${devocionalAtualIndex === 0 ? 'disabled' : ''}`}
               onClick={handlePrevious}
-              disabled={devocionalAtualIndex === 6}
+              disabled={devocionalAtualIndex === 0}
             >
               <span className="arrow-icon">{'<'}</span>
             </button>
@@ -71,9 +70,9 @@ const Devocionais = () => {
               </div>
             )}
             <button
-              className={`nav-arrow right-arrow ${devocionalAtualIndex === 0 ? 'disabled' : ''}`}
+              className={`nav-arrow right-arrow ${devocionalAtualIndex === devocionaisComDatas.length - 1 ? 'disabled' : ''}`}
               onClick={handleNext}
-              disabled={devocionalAtualIndex === 0}
+              disabled={devocionalAtualIndex === devocionaisComDatas.length - 1}
             >
               <span className="arrow-icon">{'>'}</span>
             </button>
