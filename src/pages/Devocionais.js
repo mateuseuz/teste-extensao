@@ -6,42 +6,38 @@ import devocionaisData from './devocionais.json';
 const Devocionais = () => {
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(0);
-  const [devocionalAtual, setDevocionalAtual] = useState(null);
+  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(6); // Mostra o devocional mais recente
   const [devocionaisComDatas, setDevocionaisComDatas] = useState([]);
 
   useEffect(() => {
     const today = new Date();
-    const devocionaisAtualizados = devocionaisData.map((devocional, index) => {
+    const randomDevocionais = [...devocionaisData].sort(() => Math.random() - 0.5);
+    
+    // Seleciona apenas 7 devocionais e atribui datas dos últimos 7 dias
+    const devocionaisAtualizados = randomDevocionais.slice(0, 7).map((devocional, index) => {
       const dataDevocional = new Date(today);
-      dataDevocional.setDate(today.getDate() - index);
+      dataDevocional.setDate(today.getDate() - (6 - index)); // Define a data retroativa dos últimos 7 dias
       return {
         ...devocional,
         date: dataDevocional.toLocaleDateString('pt-BR')
       };
     });
-
+    
     setDevocionaisComDatas(devocionaisAtualizados);
-    setDevocionalAtualIndex(0); // Sempre começa com o devocional mais recente
-    setDevocionalAtual(devocionaisAtualizados[0]);
   }, []);
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
   const handlePrevious = () => {
-    if (devocionalAtualIndex < devocionaisComDatas.length - 1) {
-      const newIndex = devocionalAtualIndex + 1;
-      setDevocionalAtualIndex(newIndex);
-      setDevocionalAtual(devocionaisComDatas[newIndex]);
+    if (devocionalAtualIndex < 6) {
+      setDevocionalAtualIndex(prevIndex => prevIndex + 1);
     }
   };
 
   const handleNext = () => {
     if (devocionalAtualIndex > 0) {
-      const newIndex = devocionalAtualIndex - 1;
-      setDevocionalAtualIndex(newIndex);
-      setDevocionalAtual(devocionaisComDatas[newIndex]);
+      setDevocionalAtualIndex(prevIndex => prevIndex - 1);
     }
   };
 
@@ -61,17 +57,17 @@ const Devocionais = () => {
           <p className="devocional-instruction">Selecione um devocional.<br />Utilize as setas para navegar entre as datas.</p>
           <div className="devocional-content">
             <button
-              className={`nav-arrow left-arrow ${devocionalAtualIndex === devocionaisComDatas.length - 1 ? 'disabled' : ''}`}
+              className={`nav-arrow left-arrow ${devocionalAtualIndex === 6 ? 'disabled' : ''}`}
               onClick={handlePrevious}
-              disabled={devocionalAtualIndex === devocionaisComDatas.length - 1}
+              disabled={devocionalAtualIndex === 6}
             >
               <span className="arrow-icon">{'<'}</span>
             </button>
-            {devocionalAtual && (
+            {devocionaisComDatas[devocionalAtualIndex] && (
               <div className="devocional-box" onClick={openModal}>
-                <h2>{devocionalAtual.title}</h2>
-                <p>{devocionalAtual.verse}</p>
-                <p>{devocionalAtual.date}</p>
+                <h2>{devocionaisComDatas[devocionalAtualIndex].title}</h2>
+                <p>{devocionaisComDatas[devocionalAtualIndex].verse}</p>
+                <p>{devocionaisComDatas[devocionalAtualIndex].date}</p>
               </div>
             )}
             <button
@@ -88,11 +84,11 @@ const Devocionais = () => {
         <p>Centro Universitário Filadélfia &copy; 2024. Todos os direitos reservados.</p>
       </footer>
 
-      {isModalOpen && devocionalAtual && (
+      {isModalOpen && devocionaisComDatas[devocionalAtualIndex] && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h2>{devocionalAtual.title} - {devocionalAtual.verse}</h2>
-            {devocionalAtual.content.map((paragraph, index) => (
+            <h2>{devocionaisComDatas[devocionalAtualIndex].title} - {devocionaisComDatas[devocionalAtualIndex].verse}</h2>
+            {devocionaisComDatas[devocionalAtualIndex].content.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
             <button className="close-button" onClick={closeModal}>Fechar</button>
