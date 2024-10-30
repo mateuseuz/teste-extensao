@@ -6,13 +6,12 @@ import devocionaisData from './devocionais.json';
 const Devocionais = () => {
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(0);
+  const [devocionalAtualIndex, setDevocionalAtualIndex] = useState(6);
   const [devocionaisComDatas, setDevocionaisComDatas] = useState([]);
 
   useEffect(() => {
     const today = new Date();
     const randomDevocionais = [...devocionaisData].sort(() => Math.random() - 0.5);
-    
     const devocionaisAtualizados = randomDevocionais.slice(0, 7).map((devocional, index) => {
       const dataDevocional = new Date(today);
       dataDevocional.setDate(today.getDate() - index);
